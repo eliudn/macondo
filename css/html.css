@@ -1,0 +1,33 @@
+/*html*/
+html{
+    padding: 0;
+    margin:0;
+    height: 100%;
+}
+/*body*/
+body{
+    background: #F6F6F6;
+    font-family: 'Lato', Helvetica, sans-serif !important;
+    font-size: 13px;
+    line-height: 18px;
+    color: #333;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+/*ul,li*/
+ul,li {
+    list-style-type: none;
+    padding: 0;
+    margin:0; 
+}
+/*a*/
+a{text-decoration: none;}
+/**/
+button{
+    background: transparent;
+    padding: 0;
+    margin:0;
+    border: 0;
+    
+}

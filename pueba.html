@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+   
+    <script src="Scripts/jquery-1.9.1.min.js"></script>
+    <script>
+    $(document).ready(function () {
+	
+        $('#img1').hover(function () {
+            $(this).animate({ opacity: 0.3 }, 400)
+            $('#tex1').show(500);
+        }, function () {
+            $(this).animate({ opacity: 1.0 }, 400)
+            $("#tex1").fadeOut(1000);
+        });
+        $('#img2').hover(function () {
+            $(this).animate({ opacity: 0.3 }, 400)
+            $('#tex2').show(500);
+        }, function () {
+            $(this).animate({ opacity: 1.0 }, 400)
+            $("#tex2").fadeOut(1000);
+        });
+    });
+    </script>
+   
+</head>
+<body>
+    <table>
+        <tr><td></tr>
+    </table>
+    <div id="img1" style="float:left">
+         <img src="Imagenes/chrome.png" />
+    </div>
+    <div id="tex1" style="float:left;display:none;">
+        Google es lo mejor
+    </div>
+    <div id="tex2" style="float:right;display:none">
+        Mozilla es lo mejor
+    </div>
+    <div id="img2" style="float:right">
+        <img src="Imagenes/firefox.png" />
+    </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+﻿/*Body*/
+body{    
+	font-family: 'Roboto', sans-serif;
+    background: #EEEEEE;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+body[role="login"]{    
+	font-family: 'Roboto', sans-serif;
+    background: #d9dddc url(../images/O71VEH0.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+/*login*/
+.center-div{
+    width: 100%;
+    max-width: 600px;
+    padding: 8% 0 0;
+    margin: auto;
+}
+.panel-login{
+   background: #fff;
+       opacity: .9;
+    -webkit-box-shadow: 0px 7px 24px 1px rgba(0,0,0,0.45);
+    -moz-box-shadow: 0px 7px 24px 1px rgba(0,0,0,0.45);
+    box-shadow: 0px 7px 24px 1px rgba(0,0,0,0.45);
+    border-radius: 0.2em;
+}
+
+/*button*/
+.school-button {
+  background-color: #EB4D40 !important;
+  text-transform: none !important;
+}
+/*css menu*/
+#cssmenu {
+    width:100% !important;
+}
+#cssmenu a {
+    height:34px !important;
+    border-radius:3px !important;
+}
+#cssmenu > ul > li > a {
+     background:#EB4D40 !important;
+}   
+
+#cssmenu > ul > li.active > a {
+        background:#ff8a80 !important;
+    }
+
+.activo {
+  color: #fff !important;
+  text-shadow:none !important;
+  background:#EB4D40 !important
+}
+
+#cssmenu ul ul a:hover {
+  background:#ff8a80 !important;
+}
+

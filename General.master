@@ -1,0 +1,220 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="General.master.cs" Inherits="General" %>
+
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%: Page.Title %> MACONDO</title>
+   <%-- <link href="css/schoolonline.css" rel="stylesheet" type="text/css" />--%>
+    <%-- <link href="css/materialize.css" rel="stylesheet" type="text/css" />--%>
+     <!--<link href="css/icon.css" rel="stylesheet" type="text/css" />-->
+    <link rel="stylesheet" type="text/css" href="css/html.css">
+    <link rel="stylesheet" type="text/css" href="css/viewport.css">
+     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+ 
+     <!--Libreria de JQuery-->
+     <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/viewport.js"></script>
+    <script type="text/javascript" src="js/accordion.js"></script>
+  
+    
+     <link href="~/Styles/General.css" rel="stylesheet" type="text/css" />
+
+     <script type="text/javascript">
+            $(".mensajes").ready(function () {
+                setTimeout(function () { $(".mensajes").fadeOut(1500); }, 1500);
+            });
+        </script>
+
+    <script>
+        function scroll(){
+            window.onload = function () {
+                var pos = window.name || 0;
+                window.scrollTo(0, pos);
+            }
+            window.onunload = function () {
+                window.name = self.pageYOffset || (document.documentElement.scrollTop + document.body.scrollTop);
+            }
+        }
+       
+    </script>
+     <script>
+      	 /*Agregado 22-11-2016 por Jonny Pacheco*/
+		 function doSearch(val,table) {
+						/*var tableReg = document.getElementById('table');*/
+						var tableReg=document.getElementById(""+table);
+						var searchText =$("#"+val).val().toLowerCase();
+						/*var searchText = document.getElementById('buscar').value.toLowerCase();*/
+						for (var i = 1; i < tableReg.rows.length; i++) {
+							var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+							var found = false;
+							for (var j = 0; j < cellsOfRow.length && !found; j++) {
+								var compareWith = cellsOfRow[j].innerHTML.toLowerCase();
+								if (searchText.length === 0 || (compareWith.indexOf(searchText) > -1)) {
+									found = true;
+								}
+							}
+							if (found) {
+								tableReg.rows[i].style.display = '';
+							} else {
+								tableReg.rows[i].style.display = 'none';
+							}
+						}
+					}
+	 
+	 </script>
+    
+
+  
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body >
+    <form id="formmaster" runat="server">
+        <header>
+              <!-- Dropdown Structure -->
+              <ul id='module' class='dropdown-content' style="max-width:240px; width:100%;">
+                <li><a href="#!">one</a></li>
+                <li><a href="#!">two</a></li>
+                <li class="divider"></li>
+                <li><a href="#!">three</a></li>
+              </ul>
+              <!-- navbar --> 
+                    <nav class="navbar-fixed">
+                              <a href="#"  id="button-collapse" class="button-collapse" onclick="sideNav('close');"><i class="material-icons">menu</i></a>
+                              <a href="http://programaciclon.edu.co/" target="_blank" class="brand-logo"><img style="margin-left: 10px;" src="images/logo-general.jpg" height="56" /></a>
+                        <ul class="right">
+ 		                  <li>
+                              <a class="dropbtn" title="Mi Perfil" href="miperfil.aspx"><i class="material-icons">account_circle</i></a>
+ 		                      <%--  <a class="dropbtn" onclick="dropdown();"><i class="material-icons">view_module</i></a>
+ 		                       <div id="myDropdown" class="dropdown-content">
+				                    <a href="miperfil.aspx">Mi Perfil</a>
+				                  <a href="#">Link 2</a>
+				                    <a href="#">Link 3</a>
+			                   </div>--%>
+ 		                  </li>
+ 		                  <li><a href="default.aspx">Cerrar sesión</a></li>
+ 		                </ul>
+                             <%-- <ul class="right" style="margin-right:10px;">
+                                <li><a href="#" class='dropdown-button' data-activates="module" ><i class="material-icons">view_module</i></a></li>
+                                <li><asp:LinkButton ID="btnSesion" runat="server" Text="Cerrar Sesión"  OnClick="btnSesion_Click" /></li>
+                              </ul>--%>
+                      </nav>
+                <!--sidenav-->
+             <%--   <ul id="slide-out" class="side-nav fixed" >--%>
+             <div id="sidenav" class="sidenav" style="height:600px;">
+                  <div style="margin:20px auto;width:100px;height:100px;overflow:hidden">
+                       <asp:Label ID="EstadoSession" runat="server" Visible="false" />
+                            <asp:Image ID="imgPerfilGeneral" runat="server" style="width:100px;height:100px;margin:0;" />
+                     <%-- <asp:Label ID="lblcargarFoto" runat="server" ></asp:Label>--%>
+                   </div>
+                         <center><asp:Label ID="lblRegistrado" runat="server" style="width:240px;color:#444;"></asp:Label></center>       
+                 <!--menu accordeon-->
+                  <ul id="cssmenu" runat="server" class="accordion" style="bottom: 30px;">
+                         </ul>  
+
+                  
+
+              </div>
+               <%-- </ul>--%>
+        </header>   
+    <main id="main">
+        <div id="contenido" runat="server" class="content content-con-menu">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+
+            <%-- Estado de las sesiones --%>
+           
+             <asp:Label ID="cantValidaciones" runat="server" Visible="false" />
+           
+
+            <asp:Panel ID="PanelAyuda" runat="server">
+                <%--<a href="http://190.14.242.152/chatenlinea/client.php?locale=es" target="_blank" onclick="if(navigator.userAgent.toLowerCase().indexOf('opera') != -1 &amp;&amp; window.event.preventDefault) window.event.preventDefault();this.newWindow = window.open(&#039;http://190.14.242.152/chatenlinea/client.php?locale=es&amp;url=&#039;+escape(document.location.href)+&#039;&amp;referrer=&#039;+escape(document.referrer), 'mibew', 'toolbar=0,scrollbars=0,location=0,status=1,menubar=0,width=640,height=480,resizable=1');this.newWindow.focus();this.newWindow.opener=window;return false;"><img class="chatenlinea" src="http://190.14.242.152/chatenlinea/b.php?i=mibew&amp;lang=es" border="0" width="264" height="153" alt=""/></a>--%>
+            </asp:Panel>
+        </div>
+    </main>
+    
+         
+        <%--<footer class="cm-sidebar-footer">
+                <table style="margin:-5px">
+                    <tr style="height:71px">
+                        <td style="font-size:12px;width:60px">
+                            Utiliza estos navegadores.
+                        </td>
+                        <td>
+                            <a href="http://www.google.com/intl/es-419/chrome/browser/" target="_blank"><img src="Imagenes/chrome.png" alt="chrome" width="60px" /></a>
+                            <a href="http://www.mozilla.org/es-ES/firefox/new/" target="_blank"><img src="Imagenes/firefox.png" alt="chrome" width="60px"/></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                             <p style="font-size:12px;text-align:center;margin:-10px 0 0 0;">© <%: DateTime.Now.Year %> Desarrollado por CloudNets. Versión 2.0.</p>
+                        </td>
+                    </tr>
+                </table>
+            </footer>--%>
+          
+        
+    </form>
+
+     <script src="js/jquery.timers.js" type="text/javascript"></script>
+     <script language="javascript" type="text/javascript">
+
+         $().ready(function () {
+
+             $(document).everyTime(480000, function () {
+
+                 $.ajax({
+                     type: "POST",
+                     url: "bienvenida.aspx/KeepActiveSession",
+                     data: {},
+                     contentType: "application/json; charset=utf-8",
+                     dataType: "json",
+                     async: true,
+                     success: VerifySessionState,
+                     error: function (XMLHttpRequest, textStatus, errorThrown) {
+                         alert("Su sesión ha expirado por interrupción en su conexión a Internet, por favor inicie sesión nuevamente.");
+                         //alert(textStatus + ": " + XMLHttpRequest.responseText);
+                     }
+                 });
+
+             });
+
+
+         });
+
+         var cantValidaciones = 0;
+
+         function VerifySessionState(result) {
+
+             if (result.d) {
+                 $("#EstadoSession").text("activo");
+             }
+             else
+                 $("#EstadoSession").text("expiro");
+
+             $("#cantValidaciones").text(cantValidaciones);
+             cantValidaciones++;
+
+         }
+
+         //function SessionAbandon() {
+
+         //    $.ajax({
+         //        type: "POST",
+         //        url: "bienvenida.aspx/SessionAbandon",
+         //        data: {},
+         //        contentType: "application/json; charset=utf-8",
+         //        dataType: "json",
+         //        async: true,
+         //        error: function (XMLHttpRequest, textStatus, errorThrown) {
+         //            alert(textStatus + ": " + XMLHttpRequest.responseText);
+         //        }
+         //    });
+
+         //}
+    </script>
+
+</body>
+</html>
