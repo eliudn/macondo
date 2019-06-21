@@ -98,8 +98,11 @@ public partial class evalintermediaGeneral : System.Web.UI.Page
         ca += "<h3>Instrumentos No. 0.3</h3>";
         ca += "<div>";
         ca += "<ul>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>Punto 1.</a></li>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>Punto 2.</a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> Equipamiento entregado por el programa Ciclón de la Gobernación del Magdalena a las sedes educativas beneficiadas. (Información tomada de las actas de entrega, durante la evaluación intermedia)   </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> Otro equipamiento entregado por la Gobernación y Computadores para Educar a la sede educativa en el período 2016-2018, diferentes al proporcionado por el programa Ciclón:   </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> ¿Se utilizaron las tabletas entregadas por el Programa en sus espacios de formación, apropiación e investigación y para el trabajo en el aula?   </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> Su sede educativa fue beneficiada con el servicio de conectividad entregado por el programa Ciclón de la gobernación del Magdalena, entre los meses de: </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> ¿Se utilizó la conectividad en los espacios de formación del Programa y en aula?   </a></li>";
         ca += "</ul>";
         ca += "</div>";
 
