@@ -64,7 +64,7 @@ public partial class evalintermediaGeneral : System.Web.UI.Page
         ca += "<h3>Instrumentos No. 0.1 </h3>";
         ca += "<div>";
         ca += "<ul>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>1) Indece de calidad de educacion.</a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'> Indece de calidad de educacion.</a></li>";
         ca += "</ul>";
         ca += "</div>";
 
@@ -72,8 +72,16 @@ public partial class evalintermediaGeneral : System.Web.UI.Page
         ca += "<h3>Instrumentos No. 02.2</h3>";
         ca += "<div>";
         ca += "<ul>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>Punto 1.</a></li>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>Punto 2.</a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>La institución actualizó el PEI entre los meses de mayo de 2016 a la fecha.</a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>El Proyecto Educativo Institucional – PEI tiene alguno de estos énfasis formativos</a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>¿Cuál es el modelo educativo de la sede beneficiada?, teniendo en cuenta la clasificación del Ministerio de Educación Nacional –MEN- (marque solo una respuesta): </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>¿En el Proyecto Educativo Institucional – PEI- se promueve en las prácticas institucionales alguno de los siguientes aspectos?  </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> Si el PEI considera el uso de las TIC en las prácticas institucionales, ¿cuáles de las siguientes TICS hacen parte de las prácticas institucionales que promueven? </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>  Identificar en el PEI, ¿cuáles son las prácticas de innovación educativa que se proponen para realizar en la sede beneficiada? </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'> ¿El PEI pretende formar en competencias para el uso y apropiación de las TIC?  </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>  ¿Cuáles competencias en apropiación de TIC pretende formar el currículo, según la propuesta del MEN?  </a></li>";
+
+
         ca += "</ul>";
         ca += "</div>";
 
@@ -81,8 +89,8 @@ public partial class evalintermediaGeneral : System.Web.UI.Page
         ca += "<h3>Instrumentos No. 02.1</h3>";
         ca += "<div>";
         ca += "<ul>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>Punto 1.</a></li>";
-        ca += "<li style='list-style-type:lower-latin;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>Punto 2.</a></li>";
+        ca += "<li style='list-style-type:decimal;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>Punto 1.</a></li>";
+        ca += "<li style='list-style-type:decimal;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>Punto 2.</a></li>";
         ca += "</ul>";
         ca += "</div>";
 
