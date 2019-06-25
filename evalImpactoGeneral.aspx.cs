@@ -89,8 +89,10 @@ public partial class evalintermediaGeneral : System.Web.UI.Page
         ca += "<h3>Instrumentos No. 02.1</h3>";
         ca += "<div>";
         ca += "<ul>";
-        ca += "<li style='list-style-type:decimal;'><a href='javascript:void(0)' onclick='docentesbeneficiados()'>Punto 1.</a></li>";
-        ca += "<li style='list-style-type:decimal;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>Punto 2.</a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>  ¿Cuáles competencias en apropiación de TIC pretende formar el currículo, según la propuesta del MEN?  </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>  ¿Cuáles competencias en apropiación de TIC pretende formar el currículo, según la propuesta del MEN?  </a></li>";
+        ca += "<li style='list-style-type:circle;'><a href='javascript:void(0)' onclick='docentesEvaluacionintermedia()'>  ¿Cuáles competencias en apropiación de TIC pretende formar el currículo, según la propuesta del MEN?  </a></li>";
+
         ca += "</ul>";
         ca += "</div>";
 
