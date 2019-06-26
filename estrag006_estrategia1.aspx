@@ -1,565 +1,419 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Drawing;
-using System.Web.Script.Serialization;
-using System.Web.Services;
-using System.IO;
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/General.master" AutoEventWireup="true" CodeFile="estrag006_estrategia1.aspx.cs" Inherits="estrag006_estrategia1" %>
 
-public partial class estrag006_estrategia1 : System.Web.UI.Page
-{
-    Estrategias est = new Estrategias();
+<asp:Content ID="Content1" ContentPlaceHolderID="HeadContent" runat="Server">
 
-    protected void Page_PreInit(Object sender, EventArgs e)
-    {
-        if (Session["codperfil"] != null)
-        {
+    <script src="jquery.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css" />
+
+   <link href="Scripts/DataTables/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <script src="Scripts/DataTables/js/jquery.dataTables.js"></script>
+
+    <style>
+        fieldset {
+            padding: 10px;
+        }
+
+        table.border td, table.border th {
+            /*border: 1px solid;*/
+            margin: 0;
+            padding: 0;
+        }
+
+        table.border tr, table.border {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script>
+        var total = 1;
+        var codigoinstrumento;
+        $.datepicker.regional['es'] = {
+            closeText: 'Cerrar',
+            prevText: '<Ant',
+            nextText: 'Sig>',
+            currentText: 'Hoy',
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+            dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+            dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+            weekHeader: 'Sm',
+            dateFormat: 'dd/mm/yy',
+            firstDay: 1,
+            isRTL: false,
+            showMonthAfterYear: false,
+            yearSuffix: ''
+        };
+        $.datepicker.setDefaults($.datepicker.regional['es']);
+        $(document).ready(function () {
+            cargarListadoMateriales();
+            //cargarinstituciones();
+            reset();
+
+            $("#add").click(function () {
+
+                if ($.trim($("#nombrematerial" + total).val()) == '') {
+                    alert("Por favor, Ingrese nombre material");
+                    $("#nombrematerial" + total).focus();
+                } else if ($.trim($("#cantidad" + total).val()) == '') {
+                    alert("Por favor, Ingrese cantidad");
+                    $("#cantidad" + total).focus();
+                } else if (!$('input[name="estado' + total + '"]').is(':checked')) {
+                    alert('Por favor, seleccione estado');
+                } else {
+                    total = parseInt(total) + 1;
+                    // alert(total);
+                    if ($("#remove")) {
+                        $("#remove").remove();
+                    }
+                    html = '<tr id="campus' + total + '">';
+                    html += '<td align="center"><input type="text" class="TextBox" id="nombrematerial' + total + '" name="nombrematerial' + total + '" class="width-100"></td>';
+                    html += '<td align="center"><input type="text" class="TextBox" id="cantidad' + total + '" onkeypress="return valideKey(event);" name="cantidad' + total + '" class="width-100"></td>';
+                    html += '<td><table ><tr id="radiotr' + total + '"><td style=" text-align: center;" align="center"><input type="radio" name="estado' + total + '" value="bueno"></td><td style=" text-align: center;" align="center"><input type="radio" name="estado' + total + '" value="regular"></td><td><br /><button id="remove" class="btn btn-danger" onclick="fRemove(' + total + ')">-</button></td></tr></table></td>';
+                    $("#tablecampus").append(html);
+
+                }
+            });
+
+          
+            //Cargar departamento
+            cargarDepartamento();
+
+            $("#departamento").on("change", function () {
+                var jsondata = "{'codDepartamento': '" + $("#departamento").val() + "'}";
+                $.ajax({
+                    type: 'POST',
+                    url: 'estrag006_estrategia1.aspx/cargarMunicipioMagdalena',
+                    data: jsondata,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'JSON',
+                    success: function (response) {
+                        var resp = response.d.split("@");
+                        if (resp[0] === "municipio") {
+                            $("#municipio").html(resp[1]);
+                        }
+                    }
+                });
+            });
+
+            //cargando las instituciones
+            $("#municipio").on("change", function () {
+                var codMunicipio = $("#municipio").val();
+                cargarinstituciones(codMunicipio);
+            });
+
+            //cargando las instituciones
+            //cargarinstituciones();
+
+            //cargando sedes segun institucion seleccionada
+            $("#institucion").change(function () {
+                var jsonData = '{ "codigoins":"' + $("#institucion").val() + '"}';
+                $.ajax({
+                    type: 'POST',
+                    url: 'estrag006_estrategia1.aspx/cargarsedes',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: jsonData,
+                    success: function (json) {
+                        var resp = json.d.split("@");
+                        if (resp[0] === "sedes") {
+                            $("#sede").html(resp[1]);
+                        }
+                    }
+                });
+            });
+
+            $("input[type='date']").datepicker();
+
+        });
+
+      
+        //JQuerysinfoListTable
+
+        function cargarDataTable() {
+            $('#infoListTable').DataTable({
+                "language": {
+                    "url": "dataTables.spanish.lang",
+                    "sProcessing": "Procesando...",
+                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "sZeroRecords": "No se encontraron resultados",
+                    "sEmptyTable": "Ningún dato disponible en esta tabla",
+                    "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sSearch": "Buscar:",
+                    "sUrl": "",
+                    "sInfoThousands": ",",
+                    "sLoadingRecords": "Cargando...",
+                    "oPaginate": {
+                        "sFirst": "Primero",
+                        "sLast": "Último",
+                        "sNext": "Siguiente",
+                        "sPrevious": "Anterior"
+                    },
+                    "searching": false,
+                    "aaSorting": [[0, 'desc']],
+                    "oAria": {
+                        "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                    }
+                },
+                "columns": [ //agregar configuraciones a cada una de las columnas de las tablas
+                      { "orderable": false },//column 1
+                      { "orderable": false },//column 2
+                      { "orderable": false },//column 3
+                      { "orderable": false },//column 4
+                      { "orderable": false },//column 5
+                      { "orderable": false }//column 6
+                ]
+            });
 
         }
-        else
-            Response.Redirect("Default.aspx");
-    }
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        mensaje.Attributes.Add("style", "display:none");// este es el mensaje 
-        if (!IsPostBack)
-        {
-            //obtenerGET();
-            //if (Session["e"] != null)
-            //{
-                if (Session["identificacion"] != null)
-                {
-                    DataRow dato = est.buscarCodEstraAsesorxCoordinador(Session["identificacion"].ToString());
 
-                    if (dato != null)
-                    {
-                        Session["CodEstraAsesorCoordinador"] = dato["codigo"].ToString();
-                      
+        function cargarDepartamento()
+        {
+            $.ajax({
+                type: 'POST',
+                url: 'estrag006_estrategia1.aspx/cargarDepartamentoMagdalena',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'JSON',
+                success: function (response) {
+                    var resp = response.d.split("@");
+                    if (resp[0] === "departamento") {
+                        $("#departamento").html(resp[1]);
                     }
                 }
-         
-        }
-    }
-    public void obtenerGET()
-    {
-        Session["e"] = HttpUtility.UrlDecode(HttpContext.Current.Request.QueryString["e"]);
-        lblMomento.Text = HttpUtility.UrlDecode(HttpContext.Current.Request.QueryString["m"]);
-        lblSesion.Text = HttpUtility.UrlDecode(HttpContext.Current.Request.QueryString["s"]);
-
-    }
-    private void mostrarmensaje(string estado, string texto)
-    {
-        mensaje.Attributes.Add("style", "display:block");// este es el mensaje 
-        mensaje.Attributes.Add("class", estado + " mensajes");
-        mensaje.InnerText = texto;
-    }
-    protected void btnRegresar_Click(object sender, EventArgs e)
-    {
-        if (Session["e"].ToString() == "1")
-            Response.Redirect("estramomentos.aspx?m=" + lblMomento.Text);
-        else if (Session["e"].ToString() == "2")
-            Response.Redirect("estradosmomentos.aspx?m=" + lblMomento.Text + "&s=" + lblSesion.Text);
-    }
-   
-    [WebMethod(EnableSession = true)]
-    public static string cargarListadoMaterialesAsesor()
-    {
-        string ca = "";
-
-        Institucion inst = new Institucion();
-
-        //int pagint = Convert.ToInt32(page);
-        //int rowsint = Convert.ToInt32(rows);
-        //int offset = (pagint - 1) * rowsint;
-
-        DataTable datosmateriales = inst.cargarListadoMaterialesxAsesorEstra1(HttpContext.Current.Session["CodEstraAsesorCoordinador"].ToString(), "0", "1000");
-
-        if (datosmateriales != null && datosmateriales.Rows.Count > 0)
-        {
-            DataTable datosCount = inst.cargarListadoMaterialesxAsesorCountEstra1(HttpContext.Current.Session["CodEstraAsesorCoordinador"].ToString());
-
-            double cant = datosCount.Rows.Count;
-            double val = Math.Ceiling(cant / 10);
-
-            for (int i = 0; i < datosmateriales.Rows.Count; i++)
-            {
-                ca += "<tr>";
-                ca += "<td>" + (i+1) + "</td>";
-                ca += "<td>" + datosmateriales.Rows[i]["asesor"].ToString() + "</td>";
-                //ca += "<td>" + datosmateriales.Rows[i]["nombredepartamento"].ToString() + "</td>";
-                ca += "<td>" + datosmateriales.Rows[i]["municipio"].ToString() + "</td>";
-                ca += "<td>" + datosmateriales.Rows[i]["institucion"].ToString() + "</td>";
-                ca += "<td>" + datosmateriales.Rows[i]["sede"].ToString() + "</td>";
-                ca += "<td align=\"center\"><br /><a class='btn btn-success' onclick=\"$('#listTable').hide(), $('#formTable').fadeIn(500), loadInstrumento(" + datosmateriales.Rows[i]["codigo"].ToString() + ")\">Editar</a><br/ ><br /><a href=\"estrag006Evidencia_estra1.aspx?cod=" + datosmateriales.Rows[i]["codigo"].ToString() + "\" class=\"btn btn-primary\">Evidencias</a><br/ ><br /><a onclick=\" eliminar(" + datosmateriales.Rows[i]["codigo"].ToString() + ") \" class=\"btn btn-danger\">Eliminar</a><br/ ><br /></td>";
-                ca += "</tr>";
-            }
-
-            //ca += "@";
-            //for (int j = 0; j < val; j++)
-            //{
-            //    if (pagint == (j + 1))
-            //    {
-            //        ca += " <span id='span" + (j + 1) + "' class=\"item current\" onclick='cargarListadoMemorias(\"" + (j + 1) + "\",\"10\")'>" + (j + 1) + "</span>";
-            //    }
-            //    else
-            //    {
-            //        ca += " <span id='span" + (j + 1) + "' class=\"item\" onclick='cargarListadoMemorias(\"" + (j + 1) + "\",\"10\")'>" + (j + 1) + "</span>";
-            //    }
-            //}
-        }
-        else
-        {
-            ca += "<tr><td colspan='11' align='center'>No se encontraron registros de materiales por parte del asesor.</td></tr>";
-        }
-     
-        return ca;
-    }
-    [WebMethod(EnableSession = true)]
-    public static string loadSelectInstrumento(string codigo)
-    {
-        string ca = "";
-        Estrategias estra = new Estrategias();
-
-        DataRow dato = estra.loadSelectInstrumentog006Estra1(codigo);
-        if (dato != null)
-        {
-            ca += "loadSelect@";
-            ca += "<option value='" + dato["codigodepartamento"].ToString() + "'>" + dato["nombredepartamento"].ToString() + "</option>@";
-            ca += "<option value='" + dato["codigomunicipio"].ToString() + "'>" + dato["nombremunicipio"].ToString() + "</option>@";
-            ca += "<option value='" + dato["codigoinstitucion"].ToString() + "'>" + dato["nombreinstitucion"].ToString() + "</option>@";
-            ca += "<option value='" + dato["codigosede"].ToString() + "'>" + dato["nombresede"].ToString() + "</option>@";
-            //ca += "<option value='" + dato["codigoredtematica"].ToString() + "'>" + dato["redtematica"].ToString() + "</option>";
-        }
-        return ca;
-    }
-    [WebMethod(EnableSession = true)]
-    public static string cargarDepartamentoMagdalena()
-    {
-        string ca = "";
-
-        Institucion inst = new Institucion();
-
-        DataTable datos = inst.cargarDepartamentoMagdalena();
-
-        if (datos != null && datos.Rows.Count > 0)
-        {
-            ca = "departamento@";
-            ca += "<option value='' disabled selected>Seleccione departamento</option>";
-            for (int i = 0; i < datos.Rows.Count; i++)
-            {
-                ca += "<option value='" + datos.Rows[i]["cod"].ToString() + "'>" + datos.Rows[i]["nombre"].ToString() + "</option>";
-            }
+            });
         }
 
-        return ca;
-    }
-
-    //Cargar municipios
-    [WebMethod(EnableSession = true)]
-    public static string cargarMunicipioMagdalena(string codDepartamento)
-    {
-        string ca = "";
-
-        Institucion inst = new Institucion();
-
-        DataTable datos = inst.cargarciudadxDepartamento(codDepartamento);
-
-        if (datos != null && datos.Rows.Count > 0)
+        function cargarListadoMateriales()
         {
-            ca = "municipio@";
-            ca += "<option value='' disabled selected>Seleccione municipio</option>";
-            for (int i = 0; i < datos.Rows.Count; i++)
-            {
-                ca += "<option value='" + datos.Rows[i]["cod"].ToString() + "'>" + datos.Rows[i]["nombre"].ToString() + "</option>";
-            }
-        }
+            //var table = $('#infoListTable').DataTable();
+            //table.destroy();
+            $.ajax({
+                type: 'POST',
+                url: 'estrag006_estrategia1.aspx/cargarListadoMaterialesAsesor',
+                //data: jsondata,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (response) {
 
-        return ca;
-    }
-    [WebMethod(EnableSession = true)]
-    public static string cargarInstituciones(string codmunicipio)
-    {
-        string ca = "";
+                    var resp = response.d.split("@");
 
-        Institucion inst = new Institucion();
-     
-        DataTable datos = inst.cargarInstitucionxMunicipio(codmunicipio);
-
-        if (datos != null && datos.Rows.Count > 0)
-        {
-            ca = "inst@";
-            ca += "<option value='0' disabled selected>Seleccione institución</option>";
-            
-            //ca += "@" + datoUsuario["cod"].ToString();
-            for (int i = 0; i < datos.Rows.Count; i++)
-            {
-                ca += "<option value='" + datos.Rows[i]["codigo"].ToString() + "'>" + datos.Rows[i]["nombre"].ToString() + "</option>";
-                //ca += datos.Rows[i]["codigo"].ToString() + "@" + datos.Rows[i]["nombre"].ToString();
-            }
-        }
-
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string cargarsedes(string codigoins)
-    {
-        string ca = "";
-
-        Institucion inst = new Institucion();
-        
-  
-        DataTable datos = inst.cargarSedesInstitucion(codigoins);
-       
-        if (datos != null && datos.Rows.Count > 0)
-        {
-            ca = "sedes@";
-            ca += "<option value='' disabled selected>Seleccione sede</option>";
-            for (int i = 0; i < datos.Rows.Count; i++)
-            {
-                ca += "<option value='" + datos.Rows[i]["cod"].ToString() + "'>" + datos.Rows[i]["nombre"].ToString() + "</option>";
-            }
-        }
-
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string datosSedes(string codigosede)
-    {
-        string ca = "";
-
-        Institucion inst = new Institucion();
-
-       
-        DataRow datossede = inst.cargarDatosSede(codigosede);
-
-        if (datossede != null)
-        {
-            ca = "datossede&";
-            ca += "<option value='0' disabled>Seleccione departamento...</option>"
-                + "<option value = '" + datossede["coddepartamento"].ToString() + "' selected>" + datossede["nombredepartamento"].ToString() + "</option>"
-                + "&<option value='0' disabled>Seleccione municipio...</option>"
-                + "<option value = '" + datossede["codmunicipio"].ToString() + "' selected>" + datossede["nombremunicipio"].ToString() + "</option>"
-                + "&" + datossede["telefono"].ToString()
-                + "&" + datossede["email"].ToString()
-                + "&" + datossede["direccion"].ToString();
-
-        }
-
-        return ca;
-    }
-
-    // [WebMethod(EnableSession = true)]
-    // public static string grupoInvestigacion(string codigosede)
-    // {
-
-        // //Funciones fun = new Funciones();
-
-        // //fun.convertFechaAño();
-
-        // string ca = "";
-
-        // Institucion inst = new Institucion();
-
-        // estrag006 est = new estrag006();
-
-        // DataTable gruposinvestigacion = inst.cargarGruposInvestigacion(codigosede);
-
-        // if (gruposinvestigacion != null && gruposinvestigacion.Rows.Count > 0)
-        // {
-            // ca = "gruposinvestigacion@";
-            // ca += "<option value='' disabled selected>Seleccione grupo investigación...</option>";
-            // for (int i = 0; i < gruposinvestigacion.Rows.Count; i++)
-            // {
-                // ca += "<option value='" + gruposinvestigacion.Rows[i]["codigo"].ToString() + "'>" + gruposinvestigacion.Rows[i]["nombregrupo"].ToString() + "</option>";
-                // HttpContext.Current.Session["codProyectoSede"] = gruposinvestigacion.Rows[i]["codigo"].ToString();
-            // }
-        // }
-        // else
-        // {
-            // ca = "vacio@<option value='sin' disabled selected>Sin grupos de investigación</option>";
-        // }
-
-        // return ca;
-    // }
-
-   
-    [WebMethod(EnableSession = true)]
-    public static string updateDatosSede(string codigo, string telefono,string email, string direccion)
-    {
-
-        //Funciones fun = new Funciones();
-
-        //fun.convertFechaAño();
-
-        Institucion inst = new Institucion();
-        string ca = "";
-        
-        long update = inst.updateSede(codigo, telefono, email, direccion);
-        if (update != -1)
-        {
-            ca = "true@";
-        }
-        else
-        {
-            ca = "Ocurrio un error al actualizar datos de sedes@";
-        }
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string insertInstrumento(string fechaentregamaterial1, string codsede, string nombrequienrecibe1)
-    {
-
-
-        Funciones fun = new Funciones();
-
-        Institucion inst = new Institucion();
-
-        string ca = "";
-
-        string coord = HttpContext.Current.Session["CodEstraAsesorCoordinador"].ToString();
-
-
-        DataRow insert = inst.procinsertIntrumentoEstra1(fun.convertFechaAño(fechaentregamaterial1), codsede, nombrequienrecibe1, coord);
-        if (insert != null)
-        {
-            ca = "true@";
-            ca += insert["codigo"].ToString();
-            HttpContext.Current.Session["codProyectoSede"] = codsede;
-        }
-        else
-        {
-            ca = "Ocurrio un error al insertar datos de instrumento_g006@";
-        }
-        return ca;
-    }
-
-
-    [WebMethod(EnableSession = true)]
-    public static string loadInstrumento(string codigo)
-    {
-        string ca = "";
-
-        Institucion inst = new Institucion();
-
-        DataRow datosinstrumento = inst.cargarDatosInstrumentoEstra1(codigo);
-        HttpContext.Current.Session["codProyectoSede"] = codigo;
-        if (datosinstrumento != null)
-        {
-            ca = "true@";
-            ca += datosinstrumento["codasesorcoordinador"].ToString()
-                + "@" + datosinstrumento["codsede"].ToString()
-                + "@" + datosinstrumento["nombrequienrecibe"].ToString()
-                + "@" + datosinstrumento["fechaentregamaterial"].ToString()
-                + "@" + datosinstrumento["codigo"].ToString();
-            
+                    $("#infoListTable tbody").html(resp[0]);
+                    //$("#paginacion").html(resp[1]);
+                },
+                complete: function () {
+                    //cargarDataTable();
+                }
+            });
             
         }
-        else
-        {
-            ca = "vacio@";
+
+        function fRemove(data) {
+            // alert(data);
+            var ant = data - 1;
+            total = total - 1;
+            $("#campus" + data).remove();
+            $("#radiotr" + ant).append('<td><button id="remove"  class="btn btn-danger" onclick="fRemove(' + ant + ')">-</button></td>');
         }
 
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string updateInstrumento(string fechaentregamaterial, string nombrequienrecibe,string codigoinstrumento)
-    {
-
-        Funciones fun = new Funciones();
-
-        Institucion inst = new Institucion();
-        string ca = "";
-
-        long update = inst.updateInstrumentoEstra1(fun.convertFechaAño(fechaentregamaterial), nombrequienrecibe, codigoinstrumento);
-        if (update != -1)
-        {
-            ca = "true@";
-
-
-        }
-        else
-        {
-            ca = "Ocurrio un error al actualizar datos de instrumento@";
-        }
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string insertMaterial(string codigoinstrumento, string nombrematerial, string cantidad, string estado)
-    {
-
-        Institucion inst = new Institucion();
-        string ca = "";
-
-        DataRow insert = inst.insertMaterialEstra1(codigoinstrumento, nombrematerial, cantidad, estado);
-        if (insert != null)
-        {
-            ca = "true@";
-        }
-        else
-        {
-            ca = "Ocurrio un error al insertar material@";
-        }
-        
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string deleteMaterial(string codigoinstrumento)
-    {
-
-        Funciones fun = new Funciones();
-
-        Institucion inst = new Institucion();
-        string ca = "";
-
-        long delete = inst.deleteMaterialEstra1(codigoinstrumento);
-        if (delete != -1)
-        {
-            ca = "true@";
-        }
-        else
-        {
-            ca = "Ocurrio un error al eliminar materiales@";
-        }
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string loadMaterial(string codigoinstrumento,int total)
-    {
-        string ca = "";
-        
-        Institucion inst = new Institucion();
-
-        DataTable datos = inst.procloadMaterialEstra1(codigoinstrumento);
-
-        if (datos != null && datos.Rows.Count > 0)
-        {
-            ca = "mat@";
-            ca += "<tr><th> Nombre del material</th>";
-            ca += "<th> Cantidad </th>";
-            ca += "<th> Estado <br>";
-            ca += "<table width=\"100%\" >";
-            ca += "<tr>";
-            ca += "<td width =\"30%\"> Si </td>";
-            ca += "<td width =\"30%\"> No </td>";
-            ca += "</tr>";
-            ca += "</table>";
-            ca += "</th>";
-            ca += "</tr> ";
-            //ca += "@" + datoUsuario["cod"].ToString();
-            for (int i = 0; i < datos.Rows.Count; i++)
-            {
-                ca += "<tr id=\"campus" + total + "\">";
-                ca += "<td align=\"center\" ><input type=\"text\" class=\"TextBox\" id =\"nombrematerial" + total + "\" name =\"nombrematerial" + total + "\" class=\"width-100\" value=\""+ datos.Rows[i]["nombrematerial"].ToString() + "\" style=\"width:350px;\" disabled></td>";
-                ca += "<td align=\"center\"><input type=\"text\" class=\"TextBox\" id =\"cantidad" + total + "\" name =\"cantidad" + total + "\"  onkeypress=\"return valideKey(event);\" class=\"width-100\" value=\"" + datos.Rows[i]["cantidad"].ToString() + "\" style=\"width:50px;\" ></td>";
-
-                ca += "<td><table width=\"100%\" ><tr id=\"radiotr" + total + "\" >";
-                ca += "<td width=\"30%\" style =\" text -align: center;\" align =\"center\" >";
-                
-                
-                if(datos.Rows[i]["estado"].ToString() == "Si")
-                {
-                    ca += "<input type=\"radio\" name =\"estado" + total + "\" checked=\"checked\"  value =\"Si\" ></td>";
-                    ca += "<td width=\"30%\" style =\" text-align: center;\" align =\"center\" >";
-                    ca += "<input type=\"radio\" name =\"estado" + total + "\" value =\"No\"></td>";
-                    ca += "<td width=\"40%\" style =\" text-align: center;\" align =\"center\" >";
+        function cargarinstituciones(codMunicipio) {
+            reset();
+            var jsonData = '{ "codmunicipio":"' + codMunicipio + '"}';
+            $.ajax({
+                type: 'POST',
+                url: 'estrag006_estrategia1.aspx/cargarInstituciones',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: jsonData,
+                success: function (json) {
+                    var resp = json.d.split("@");
+                    if (resp[0] === "inst") {
+                        $("#institucion").html(resp[1]);
+                        //alert(resp[0]);
+                    }
                 }
-                else if (datos.Rows[i]["estado"].ToString() == "No")
-                {
-                    ca += "<input type=\"radio\" name =\"estado" + total + "\" value =\"Si\" ></td>";
-                    ca += "<td width=\"30%\" style =\" text-align: center;\" align =\"center\" >";
-                    ca += "<input type=\"radio\" name =\"estado" + total + "\" checked=\"checked\"  value =\"No\"></td>";
-                    ca += "<td width=\"40%\" style =\" text-align: center;\" align =\"center\" >";
-                }
-                else{
+            });
+        }
 
-                }
+        function reset() {
+            $('#telefono').val('');
+            $("#email").val('');
+            $("#direccion").val('');
 
-                if (i == datos.Rows.Count-1)
-                {
-                    //ca += "<td><button id=\"remove\" class=\"btn btn-danger\" onclick=\"fRemove(" + total + ")\" > -</button></td>";
-                }
-                else
-                {
-                    //ca += "<td></td>";
-                    total = total + 1;
-                }
-                ca += "</tr></table></td>";
+            $('#grupoinvestigacion').html("<option value='' selected>Seleccione grupo investigación...</option>");
 
-               
+            $('#btn-guardar').val('Guardar');
+            $("#fechaentrega1").val('');
+            $("#fechaentrega2").val('');
+            $("#fechaentrega3").val('');
+            $("#fechaentrega4").val('');
+            $("#nombre1").val('');
+            $("#nombre2").val('');
+            $("#nombre3").val('');
+            $("#nombre4").val('');
+            $('#btn-guardar').attr('onclick', 'enviarestrag006_estrategia1(\'insert\')');
+            //html = '<tr>';
+            //html += '<th>Nombre del material</th>';
+            //html += '<th>Cantidad</th>';
+            //html += '<th>estado <br>';
+            //html += '<table width="100%">';
+            //html += '<tr>';
+            //html += '<td width="50%">Bueno</td>';
+            //html += '<td width="50%">Regular</td>';
+            //html += '</tr>';
+            //html += '</table>';
+            //html += '</th>';
+            //html += '</tr>';
+            //html += '<tr >';
+            //html += '<td align="center"><input type="text" class="TextBox" width="350" id="nombrematerial1" name="nombrematerial1" class="width-100"></td>';
+            //html += '<td align="center"><input type="text" class="TextBox" id="cantidad1" name="cantidad1" onkeypress="return valideKey(event);" class="width-100"></td>';
+            //html += '<td>';
+            //html += '<table width="100%">';
+            //html += '<tr>';
+            //html += '<td width="50%" style=" text-align: center;"><input type="radio" name="estado1" value="bueno"></td>';
+            //html += '<td width="50%" style=" text-align: center;"><input type="radio" name="estado1" value="regular"></td>';
+            //html += '</tr>';
+            //html += '</table>';
+            //html += '</td>';
+            //html += '</tr>';
+            //$("#tablecampus").html(html);
+            //total = 1;
+        }
+
+        function enviarestrag006_estrategia1(event) {
+            var regex = /[\w-\.]{2,}@([\w-]{2,}\.)*([\w-]{2,}\.)[\w-]{2,4}/;
+            if ($.trim($("#departamento").val()) == '') {
+                alert("Por favor, seleccione departamento");
+                $("#departamento").focus();
+            } else if ($.trim($("#municipio").val()) == '') {
+                alert("Por favor, seleccione municipio");
+                $("#municipio").focus();
+            } else if ($.trim($("#institucion").val()) == '') {
+                alert("Por favor, seleccione institución");
+                $("#institucion").focus();
+            } else if ($.trim($("#sede").val()) == '') {
+                alert("Por favor, seleccione sede");
+                $("#sede").focus();
+            
+/////////////////////////////////////////////////////////////////////////////////////////////////
+            //} else if ($.trim($("#cantidad5").val()) == '') {
+            //    alert("Por favor, Ingrese cantidad en Sofía, Inti y sus amigos");
+            //    $("#cantidad" + total).focus();
+            //} else if (!$('input[name="estado5"]').is(':checked')) {
+            //    alert('Por favor, seleccione estado en Sofía, Inti y sus amigos');
+////////////////////////////////////////////////////////////////////////////////////////////////
+//            } else if ($.trim($("#cantidad2").val()) == '') {
+//                alert("Por favor, Ingrese cantidad en Navegantes Fuentes Hídricas");
+//                $("#cantidad" + total).focus();
+//            } else if (!$('input[name="estado2"]').is(':checked')) {
+//                alert('Por favor, seleccione estado en Navegantes Fuentes Hídricas');
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//            } else if ($.trim($("#cantidad6").val()) == '') {
+//                alert("Por favor, Ingrese cantidad en Nacho derecho en la Onda de los derechos");
+//                $("#cantidad" + total).focus();
+//            } else if (!$('input[name="estado6"]').is(':checked')) {
+//                alert('Por favor, seleccione estado en Nacho derecho en la Onda de los derechos');
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//            } else if ($.trim($("#cantidad4").val()) == '') {
+//                alert("Por favor, Ingrese cantidad en La Pola, Toño y sus amigos");
+//                $("#cantidad" + total).focus();
+//            } else if (!$('input[name="estado4"]').is(':checked')) {
+//                alert('Por favor, seleccione estado en La Pola, Toño y sus amigos');
+////////////////////////////////////////////////////////////////////////////////////////////////
+            } else if ($.trim($("#fechaentrega1").val()) == '') {
+                alert("Por favor, Ingrese fecha de entrega");
+                $("#fechaentrega1").focus();
+////////////////////////////////////////////////////////////////////////////////////////////////
+            } else if($.trim($("#nombre1").val()) == '') {
+                alert("Por favor, Ingrese nombre");
+                $("#nombre1").focus();
             }
-            ca += "@" + total;
-        }
-        else
-        {
-            ca += "<tr>";
-            ca += "<td align=\"center\">< input type=\"text\" class=\"TextBox\" width=\"350\" id =\"nombrematerial1\" name =\"nombrematerial1\" class=\"width -100\" ></td>";
-            ca += "<td align=\"center\">< input type=\"text\" class=\"TextBox\" id =\"cantidad1\" name =\"cantidad1\" class=\"width-100\" ></td>";
-            ca += "<td>";
-            ca += "<table width=\"100%\"> ";
-            ca += " <tr>";
-            ca += "<td width=\"50%\" style =\"text-align: center;\" ><input type = \"radio\" name =\"estado1\" value =\"Si\" ></td>";
-            ca += "<td width = \"50%\" style =\"text-align: center;\" ><input type = \"radio\" name =\"estado1\" value =\"No\" ></td>";
-            ca += "</tr>";
-            ca += "</table>";
-            ca += "</td>";
-            ca += "</tr>";
-        }
-
-        return ca;
-    }
-
-    [WebMethod(EnableSession = true)]
-    public static string deleteestrag006(string codigo)
-    {
-        string ca = "";
-        Institucion inst = new Institucion();
-
-        if (inst.eliminarEncabezadoEntregaMaterialEstra1(codigo))
-        {
-
-            ca = "delete@";
-        }
-        else
-        {
-            ca = "vacio@";
+           
+            
+                //else if ($.trim($("#firma").val()) == '') {
+                //    alert("Por favor, Ingrese firma");
+                //    $("#firma").focus();
+                //}
+            else {
+                var codsede = $("#sede").val();
+                var fechaentregamaterial1 = $("#fechaentrega1").val();
+                var fechaentregamaterial2= $("#fechaentrega2").val();
+                var fechaentregamaterial3 = $("#fechaentrega3").val();
+                var fechaentregamaterial4 = $("#fechaentrega4").val();
+                var nombrequienrecibe1 = $("#nombre1").val();
+                var nombrequienrecibe2 = $("#nombre2").val();
+                var nombrequienrecibe3 = $("#nombre3").val();
+                var nombrequienrecibe4 = $("#nombre4").val();
+                if (event == 'insert') {
+                    finsertInstrumento(fechaentregamaterial1, codsede, nombrequienrecibe1);
+                    finsertInstrumento(fechaentregamaterial2, codsede, nombrequienrecibe2);
+                } else if (event == 'update') {
+                    fupdateInstrumento(fechaentregamaterial1, fechaentregamaterial2, fechaentregamaterial3, fechaentregamaterial4, nombrequienrecibe1, nombrequienrecibe2, nombrequienrecibe3, nombrequienrecibe4, codigoinstrumento);
+                }
+                //updateSede(codigo, telefono, email, direccion, event);
+            }
         }
 
-        return ca;
-    }
-    [WebMethod(EnableSession = true)]
-    public static string eliminarEvidenciasEntregaMaterial(string codigo)
-    {
-        string ca = "";
-        Institucion inst = new Institucion();
-
-        if (inst.eliminarEvidenciasEntregaMaterialEstra1(codigo))
-        {
-
-            ca = "delete@";
+        function updateSede(codigo, telefono, email, direccion, event) {
+            //console.log(codigo + " " + telefono + " " + email + " " + direccion);
+            var jsonData = '{ "codigo":"' + codigo + '", "telefono": "' + telefono + '", "email": "' + email + '", "direccion": "' + direccion + '" }';
+            $.ajax({
+                type: 'POST',
+                url: 'estrag006_estrategia1.aspx/updateDatosSede',
+                data: jsonData,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    var resp = data.d.split("@");
+                    if (resp[0] === "true") {
+                        console.log("datos de sede actualizados exitosamente");
+                        var fechaentregamaterial1 = $("#fechaentrega1").val();
+                        var fechaentregamaterial2 = $("#fechaentrega2").val();
+                        var fechaentregamaterial3 = $("#fechaentrega3").val();
+                        var fechaentregamaterial4 = $("#fechaentrega4").val();
+                        var codsede = $("#sede").val();
+                        var nombrequienrecibe1 = $("#nombre1").val();
+                        var nombrequienrecibe2 = $("#nombre2").val();
+                        var nombrequienrecibe3 = $("#nombre3").val();
+                        var nombrequienrecibe4 = $("#nombre4").val();
+                        //alert(codigoinstrumento);
+                        if (event == 'insert') {
+                            finsertInstrumento(fechaentregamaterial1, fechaentregamaterial2, fechaentregamaterial3, fechaentregamaterial4, codsede, nombrequienrecibe1, nombrequienrecibe2, nombrequienrecibe3, nombrequienrecibe4);
+                        } else if (event == 'update') {
+                            fupdateInstrumento(fechaentregamaterial1, fechaentregamaterial2, fechaentregamaterial3, fechaentregamaterial4, codsede, nombrequienrecibe1, nombrequienrecibe2, nombrequienrecibe3, nombrequienrecibe4, codigoinstrumento);
+                        }
+                        
+                    } else {
+                        alert(data.d);
+                        console.error(data.d);
+                    }
+                }
+            });
         }
-        else
-        {
-            ca = "vacio@";
-        }
 
-        return ca;
-    }
+        function finsertInstrumento(fechaentregamaterial1,codsede, nombrequienrecibe1) {
+            //console.log(fechaentregamaterial + ' ' + codproyectsede + ' ' + nombrequienrecibe);
+            var jsonData = '{ "fechaentregamaterial1":"' + fechaentregamaterial1 + '", "codsede": "' + codsede + '", "nombrequienrecibe1": "' + nombrequienrecibe1 + '"}';
+            $.ajax({
+                type: 'POST',
+                url: 'estrag006_estrategia1.aspx/insertInstrumento',
+                data: jsonData,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    var resp = data.d.split("@");
+                    if (resp[0] === "true") {
+                        console.log("instrumento insertado exitosamente" + resp[1]);
+                        codigoinstrumento = resp[1];
+                        //alert("instrumento insertado exitosamente " + codigoinstrumento);
 
-}
-
-tMaterial();
+                        finsertMaterial();
                     } else {
                         alert(data.d);
                         console.error(data.d);
